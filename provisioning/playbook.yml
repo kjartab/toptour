@@ -1,0 +1,15 @@
+---
+- hosts: localvagrant
+  become_user: vagrant
+  tasks:
+  - name: add Node.js apt
+    shell: "curl --silent --location https://deb.nodesource.com/setup_4.x | bash -"
+
+  - name: Install Node.js
+    apt: pkg=nodejs
+
+  - name: make sure the latest npm is installed
+    command: npm install -g npm
+
+  - name: Install forever
+    npm: name=forever global=yes state=latest
