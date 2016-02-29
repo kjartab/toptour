@@ -1,0 +1,59 @@
+<html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../../node_modules/cesium/Build/Cesium/Widgets/widgets.css">
+
+</head>
+<body>
+<div id="attribution"></div>
+<div id="map"></div>
+
+<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+<script src="../../node_modules/cesium/Build/Cesium/Cesium.js"></script>
+
+
+<script>
+var config = {
+    timeline: false, 
+    baseLayerPicker: false, 
+    geocoder : false, 
+    animation: false,
+    orderIndependentTranslucency: false,
+    skyBox: new Cesium.SkyBox({
+      sources : {
+        positiveX : 'skybox_px.png',
+        negativeX : 'skybox_nx.png',
+        positiveY : 'skybox_py.png',
+        negativeY : 'skybox_ny.png',
+        positiveZ : 'skybox_pz.png',
+        negativeZ : 'skybox_nz.png'
+      }, show: false
+    }),
+    fullscreenButton: false,
+    babseLayerPicker: false,
+    infoBox: false,
+    homeButton:false,
+    sceneModePicker:false,
+    navigationHelpButton: false,
+    creditContainer: 'attribution'
+}
+ var viewer = new Cesium.Viewer('map', config);
+
+
+$.ajax({
+    method: 'GET', 
+    url : 'http://dev.nasjonalturbase.no/turer?api_key=0e1718433eece23d17c3f49c55018c5bd2181c99',
+    success: function(data) {
+        console.log(data);
+    },
+    error: function(data) {
+        console.log(data);
+    }
+})
+
+</script>
+
+
+</body>
+</html>
