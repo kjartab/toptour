@@ -1,15 +1,12 @@
 ---
-- hosts: localvagrant
-  become_user: vagrant
+- name: Deploy 
+  hosts: local
+  remote_user: vagrant
+
+# start the nodes
+- name: Start overskya-node
+  hosts: local
+  remote_user: ansible
   tasks:
-  - name: add Node.js apt
-    shell: "curl --silent --location https://deb.nodesource.com/setup_4.x | bash -"
-
-  - name: Install Node.js
-    apt: pkg=nodejs
-
-  - name: make sure the latest npm is installed
-    command: npm install -g npm
-
-  - name: Install forever
-    npm: name=forever global=yes state=latest
+  - name: ensure curl is at the latest version
+    apt: name=curl state=latest
