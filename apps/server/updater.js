@@ -10,9 +10,9 @@ var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 
 
 function getTurBase(objectName, parameters, callback) {
-    console.log()
+
     http.get({
-        host: 'dev.nasjonalturbase.no',
+        host: 'api.nasjonalturbase.no',
         path: buildUrl(objectName, parameters)
     }, function(response) {
 
@@ -24,6 +24,7 @@ function getTurBase(objectName, parameters, callback) {
 
             // Data reception is done, do whatever with it!
             var parsed = JSON.parse(body);
+            console.log("Body");
             console.log(parsed);
             callback(parsed);
         });
@@ -53,7 +54,6 @@ function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
         parameters.skip = counter;
 
         _.each(data.documents, function(doc) {
-            // eachCallback(doc);
             updatedDocs[doc._id] = doc;
         });
 
@@ -74,7 +74,7 @@ function updateData(objectName, parameters) {
     var counter = 0;
     var updatedDocs = {};
 
-    getUpdates(objectName, parameters, counter, updatedDocs, upsertDocuments);
+    getUpdates(objectName, parameters, counter, updatedDocs, getAndUpsertDocuments);
 
 }
 
@@ -83,7 +83,7 @@ function getQuery(doc) {
         "query" : {
             "range" : {
                 "after" : {
-                    "gt" :  
+                    "gt" : 2 
                 }
                 
             }
@@ -94,34 +94,55 @@ function getQuery(doc) {
 }
 
 function getAndUpsertDocuments(objectName, updatedDocs) {
+
     var config = config || {
         index : 'test'
     }
+
+    var esArray = [];
+
     var chunks;
     var i = 0;
     var limit = 100;
     var updatedArray = [];
-     _.each(updatedDocs, function(doc) {
+
+    _.each(updatedDocs, function(doc) {
         esArray.push({index : config.index});
         esArray.push(getQuery(doc));
-     });
+    });
 
+    es.loadDocs(updatedDocs, function(docs) {
 
+        var changedDocuments = [];
+        _.each(docs, function(doc) {
+            if (updatedDocs.hasOwnProperty(doc.turbase_id)) {
+                changedDocuments(mergeDocuments(doc, updatedDocs[doc.turbase_id]));
+            } else {
+                changedDocuments.push(doc);
+            }
+        });
+        upsertDocuments(changedDocuments, function() {
+            console.log("loaded");
+        });
+    });
 
-    function popAndLoad(updatedArray, callback) {
-        if (updatedArray.length > 0) {
-            var doc = updatedArray.pop();
+}
 
+function upsertDocuments(updatedDocs, callback) {
+
+    function popAndLoad(updatedDocs, eachCallback, finalCallback) {
+        if (updatedDocs.length > 0) {
+            var doc = updatedDocs.pop();
+            console.log(doc);
         } else {
             finalCallback();
             return;
         }
+        eachCallback(updatedDocs, eachCallback, finalCallback);
     }
 
-    popAndLoad(updatedArray, popAndLoad) {
-
-    }
-
+    popAndLoad(updatedDocs, popAndLoad, callback);
+    
 }
 
 function handleUpdates(data) {
@@ -145,4 +166,4 @@ function updataData(objectName, parameters) {
 //     console.log(data);
 // });
 
-updateData('turer', { after : '2016-02-22T19:10:38' , limit: 2 });
+updateData('turer', { after : '2016-02-29T19:10:38' , limit: 2 });
