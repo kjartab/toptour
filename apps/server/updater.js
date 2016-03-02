@@ -17,7 +17,10 @@ function getTurBase(objectName, parameters, callback) {
     }, function(response) {
 
         var body = '';
-        response.on('data', function(d) {
+        response.on('data',function updataData(objectName, parameters) {
+
+
+ function(d) {
             body += d;
         });
         response.on('end', function() {
