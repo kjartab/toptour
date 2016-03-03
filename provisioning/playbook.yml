@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 - name: Deploy 
   hosts: local
   remote_user: vagrant
@@ -10,3 +11,19 @@
   tasks:
   - name: ensure curl is at the latest version
     apt: name=curl state=latest
+=======
+- hosts: localvagrant
+  become_user: vagrant
+  tasks:
+  - name: add Node.js apt
+    shell: "curl --silent --location https://deb.nodesource.com/setup_4.x | bash -"
+
+  - name: Install Node.js
+    apt: pkg=nodejs
+
+  - name: make sure the latest npm is installed
+    command: npm install -g npm
+
+  - name: Install forever
+    npm: name=forever global=yes state=latest
+>>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
