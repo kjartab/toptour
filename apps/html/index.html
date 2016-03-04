@@ -38,19 +38,63 @@ var config = {
     navigationHelpButton: false,
     creditContainer: 'attribution'
 }
- var viewer = new Cesium.Viewer('map', config);
+var viewer = new Cesium.Viewer('map', config);
 
 
-$.ajax({
-    method: 'GET', 
-    url : 'http://dev.nasjonalturbase.no/turer?api_key=0e1718433eece23d17c3f49c55018c5bd2181c99',
-    success: function(data) {
-        console.log(data);
-    },
-    error: function(data) {
-        console.log(data);
-    }
-})
+var imageryLayers = viewer.imageryLayers;
+
+
+var imageryLayers = viewer.imageryLayers;
+console.log(imageryLayers);
+
+function addWmts() {
+    var url='http://gridwms.nve.no/wms_server/wms_server.aspx?request=getcapabilities&srs=4326'; //Geoserver URL
+    var layers = viewer.scene.globe.imageryLayers;
+        layers.removeAll();
+        layers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+            url : url,        
+            layers: 'GIS_Demo'// Here just give layer name
+        }));
+}
+
+// addWmts();
+
+function addWms() {
+
+    var wmsLayer = new Cesium.ImageryLayer(new Cesium.WebMapServiceImageryProvider({
+                parameters : {TRANSPARENT: true, format:'png'},
+                url: 'http://gridwms.nve.no/wms_server/wms_server.aspx',
+                layers: 'sdfsw'
+            }));
+    viewer.scene.imageryLayers.add(wmsLayer);
+}
+addWms();
+
+function removeWms(id) {
+    // viewer.getLayers(id).remove();
+    console.log("removing " + id);
+}
+
+
+function removeWmts(id) {
+    // viewer.getLayers(id).remove();
+    console.log("removing " + id);
+
+}
+
+
+
+
+// $.ajax({
+//     method: 'GET', 
+//     url : 'http://dev.nasjonalturbase.no/turer?api_key=0e1718433eece23d17c3f49c55018c5bd2181c99',
+//     success: function(data) {
+//         console.log(data);
+//     },
+//     error: function(data) {
+//         console.log(data);
+//     }
+// })
 
 </script>
 

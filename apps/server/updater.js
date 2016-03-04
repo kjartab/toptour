@@ -10,37 +10,23 @@ var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 
 
 function getTurBase(objectName, parameters, callback) {
-<<<<<<< HEAD
-    console.log()
-    http.get({
-        host: 'dev.nasjonalturbase.no',
-=======
-
     http.get({
         host: 'api.nasjonalturbase.no',
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
         path: buildUrl(objectName, parameters)
     }, function(response) {
 
         var body = '';
-<<<<<<< HEAD
-        response.on('data', function(d) {
-=======
         response.on('data',function updataData(objectName, parameters) {
 
 
  function(d) {
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
+    
             body += d;
         });
         response.on('end', function() {
 
             // Data reception is done, do whatever with it!
             var parsed = JSON.parse(body);
-<<<<<<< HEAD
-=======
-            console.log("Body");
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
             console.log(parsed);
             callback(parsed);
         });
@@ -70,10 +56,6 @@ function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
         parameters.skip = counter;
 
         _.each(data.documents, function(doc) {
-<<<<<<< HEAD
-            // eachCallback(doc);
-=======
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
             updatedDocs[doc._id] = doc;
         });
 
@@ -94,11 +76,7 @@ function updateData(objectName, parameters) {
     var counter = 0;
     var updatedDocs = {};
 
-<<<<<<< HEAD
     getUpdates(objectName, parameters, counter, updatedDocs, upsertDocuments);
-=======
-    getUpdates(objectName, parameters, counter, updatedDocs, getAndUpsertDocuments);
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
 
 }
 
@@ -107,11 +85,7 @@ function getQuery(doc) {
         "query" : {
             "range" : {
                 "after" : {
-<<<<<<< HEAD
-                    "gt" :  
-=======
                     "gt" : 2 
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
                 }
                 
             }
@@ -122,11 +96,6 @@ function getQuery(doc) {
 }
 
 function getAndUpsertDocuments(objectName, updatedDocs) {
-<<<<<<< HEAD
-    var config = config || {
-        index : 'test'
-    }
-=======
 
     var config = config || {
         index : 'test'
@@ -134,12 +103,12 @@ function getAndUpsertDocuments(objectName, updatedDocs) {
 
     var esArray = [];
 
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
+
     var chunks;
     var i = 0;
     var limit = 100;
     var updatedArray = [];
-<<<<<<< HEAD
+
      _.each(updatedDocs, function(doc) {
         esArray.push({index : config.index});
         esArray.push(getQuery(doc));
@@ -150,8 +119,6 @@ function getAndUpsertDocuments(objectName, updatedDocs) {
     function popAndLoad(updatedArray, callback) {
         if (updatedArray.length > 0) {
             var doc = updatedArray.pop();
-
-=======
 
     _.each(updatedDocs, function(doc) {
         esArray.push({index : config.index});
@@ -175,36 +142,7 @@ function getAndUpsertDocuments(objectName, updatedDocs) {
 
 }
 
-function upsertDocuments(updatedDocs, callback) {
 
-    function popAndLoad(updatedDocs, eachCallback, finalCallback) {
-        if (updatedDocs.length > 0) {
-            var doc = updatedDocs.pop();
-            console.log(doc);
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
-        } else {
-            finalCallback();
-            return;
-        }
-<<<<<<< HEAD
-    }
-
-    popAndLoad(updatedArray, popAndLoad) {
-
-    }
-
-=======
-        eachCallback(updatedDocs, eachCallback, finalCallback);
-    }
-
-    popAndLoad(updatedDocs, popAndLoad, callback);
-    
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
-}
-
-function handleUpdates(data) {
-
-}
 
 // update the
 function updataData(objectName, parameters) {
@@ -223,8 +161,5 @@ function updataData(objectName, parameters) {
 //     console.log(data);
 // });
 
-<<<<<<< HEAD
-updateData('turer', { after : '2016-02-22T19:10:38' , limit: 2 });
-=======
+
 updateData('turer', { after : '2016-02-29T19:10:38' , limit: 2 });
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e

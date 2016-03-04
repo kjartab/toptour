@@ -9,14 +9,10 @@ var server = app.listen(port);
 
 config.server = "localhost:"+port;
 
-
-<<<<<<< HEAD
-
-
 app.get('/trips', function(req, res) {
-    
-=======
-function callback(err, data) {
+
+
+function stdCallback(err, data) {
     if (err) {
         res.send(400, "error");
     } else {
@@ -24,48 +20,20 @@ function callback(err, data) {
     }        
 }
 
+
 app.get('/search', function(req, res) {
-
-    es.search('_all', req, callback); 
-
+    es.search('_all', req, stdCallback); 
 });
 
 
 app.get('/search/{type}', function(req, res) {
-
-    es.search(type, req, callback); 
-
+    es.search(type, req, stdCallback); 
 });
 
-app.get('/trips', function(req, res) {
 
-
-    es.get('trips', callback) {
-
-    }
->>>>>>> 7f61f7440c0a0e8df53db4a36cbcf6e2fc92978e
-
+app.get('/api/{type}/{id}', function(req, res) {
+    es.get(type, id, stdCallback);
 });
 
-app.get('/places', function(req, res) {
-
-
-
-});
-
-app.get('/regions', function(req, res) {
-
-
-});
-
-app.get('/events', function(req, res) {
-
-
-});
-
-app.get('/photos', function(req, res) {
-
-
-});
 
 
