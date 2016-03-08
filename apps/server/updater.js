@@ -7,7 +7,7 @@ var client = new elasticsearch.Client({
 });
 
 var config = config || {
-    index : 'test3'
+    index : 'toptour'
 }
 
 var turbase = {
@@ -21,7 +21,7 @@ var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 function getTurBase(objectName, parameters, callback) {
     
     http.get({
-        host: 'api.nasjonalturbase.no',
+        host: 'dev.nasjonalturbase.no',
         path: buildUrl(objectName, parameters)
     }, function(response) {
 
@@ -31,8 +31,8 @@ function getTurBase(objectName, parameters, callback) {
         });
         response.on('end', function() {
 
-            // Data reception is done, do whatever with it!
             var parsed = JSON.parse(body);
+            console.log(parsed);
             callback(parsed);
         });
     });
@@ -59,7 +59,7 @@ function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
         counter += data.count;
         total = data.total;
         parameters.skip = counter;
-
+        
         _.each(data.documents, function(doc) {
             updatedDocs[doc._id] = doc;
         });
@@ -77,7 +77,7 @@ function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
 function updateData(objectName, parameters) {
 
     var total = 0;
-    var parameters = parameters || { limit : 2, skip : 0 };
+    var parameters = parameters || { limit : 50, skip : 0 };
     var counter = 0;
     var updatedDocs = {};
 
@@ -85,7 +85,7 @@ function updateData(objectName, parameters) {
 
 }
 
-function getQuery(index, doc) {
+function buildIndex(index, doc) {
     return JSON.stringify({
         index: index,
         body: {
@@ -98,44 +98,76 @@ function getQuery(index, doc) {
     });
 }
 
+function buildQuery(doc) {
+    return JSON.stringify({
+        query: {
+            term: {
+                utid: doc.utid
+            }
+        }
+    });
+}
+
+function finish() {
+    process.exit();
+}
+
 function updateChangedDocs(objectName, docs) {
-
+    console.log(docs);
+    var count = _.keys(docs).length;
+    var newDocs = 0;
+    function decrement() {
+        count--;
+        console.log(count);
+        if (count==0) {
+            console.log("new docs: " + newDocs);
+            finish();
+        }
+    }
     _.each(docs, function(doc) {
+
         var mappedDoc = mapData(doc);
-        console.log(getQuery(config.index, mappedDoc))
-        client.search(getQuery(config.index, mappedDoc)
-        , function(error, response) {
-            console.log(response);
-        });
-        console.log(doc);
-        getUt(doc.utid, 'turer', function(data) {
-            // console.log(data);
-            // indexDocument(doc);
-        });
+        
+        client.search({
+            index : config.index,
+            body: buildQuery(mappedDoc)
+        }).then(
+        function(response) {
+            var hits = response.hits.hits;
+            console.log("hits length: ");
+            console.log(hits.length);
+            if (hits.length === 0) {
+                newDocs++;
 
-
+                getUt(
+                    mappedDoc.utid, 
+                    'turer',
+                    function(data) {
+                        console.log("got it")
+                        indexDocument(data);
+                        decrement();
+                    },
+                    function(err) {
+                         
+                       decrement();
+                        console.log(err, "error")
+                    });
+            } else {
+                decrement();
+            }
+        }, 
+        function(error) {
+            console.log("error");
+            decrement();
+        });
     });
 
     // getAndUpsertDocuments(docs);
 }
 
-// function getQuery(doc) {
-//     return {
-//         "query" : {
-//             "range" : {
-//                 "after" : {
-//                     "gt" : 2 
-//                 }
-//             }
-//         },
-//          "from" : 0, 
-//          "size" : 5
-//     }
-// }
-
 function mapData(doc) {
     // console.log(doc._id);
-    console.log(doc._id);
+
     doc.utid = doc._id;
     if (doc.hasOwnProperty('_id')) {
         delete doc['_id']
@@ -156,35 +188,10 @@ function getUt(id, type, success) {
             body += d;
         });
         response.on('end', function() {
-
             success(JSON.parse(body));
         });
     });
 }
-
-function getAndUpsertDocuments(objectName, updatedDocs) {
-
-
-    var esArray = [];
-
-    var chunks;
-    var i = 0;
-    var limit = 100;
-    var updatedArray = [];
-    var counter = 0;
-
-    _.each(updatedDocs, function(doc) {
-        getUt(doc._id, 'turer', indexDocument);
-        counter++;
-    });
-
-}
-
-// function getUtDocument(id) {
-//     var apiKey = "0e1718433eece23d17c3f49c55018c5bd2181c99"
-//     var url = "http://dev.nasjonalturbase.no/turer/524081f9b8cb77df15000fd3"
-
-// }
 
 function indexDocument(doc, success) {
     var mappedDoc = mapData(doc);
@@ -210,4 +217,4 @@ function updataData(objectName, parameters) {
 // });
 
 
-updateData('turer', { after : '2016-03-03T19:10:38' , limit: 3 });
+updateData('turer', { after : '2012-11-15T22:10:38' , limit: 50 });

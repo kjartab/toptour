@@ -1,4 +1,0 @@
----
-- name: Deploy 
-  hosts: vagrant
-  remote_user: ansible

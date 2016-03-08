@@ -1,23 +1,23 @@
 ---
-- name: Deploy overskya
+- name: toptour
   hosts: localvagrant
   sudo: yes
   remote_user: vagrant
+  roles:
+    - elasticsearch
+# - name: Install node
+#   hosts: localvagrant
+#   remote_user: ansible
+#   sudo: yes 
+#   tasks:
+#   - name: add Node.js apt
+#     shell: "curl --silent --location https://deb.nodesource.com/setup_4.x | bash -"
 
+#   - name: Install Node.js
+#     apt: pkg=nodejs
 
-- name: Install node
-  hosts: localvagrant
-  remote_user: ansible
-  sudo: yes 
-  tasks:
-  - name: add Node.js apt
-    shell: "curl --silent --location https://deb.nodesource.com/setup_4.x | bash -"
+#   - name: make sure the latest npm is installed
+#     command: npm install -g npm
 
-  - name: Install Node.js
-    apt: pkg=nodejs
-
-  - name: make sure the latest npm is installed
-    command: npm install -g npm
-
-  - name: Install forever
-    npm: name=forever global=yes state=latest
+#   - name: Install forever
+#     npm: name=forever global=yes state=latest

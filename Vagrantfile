@@ -14,13 +14,15 @@ Vagrant.configure(2) do |config|
     # Run Ansible from the Vagrant Host
     # #
     config.ssh.insert_key = false
-    # config.ssh.shell = '-c sudo passwd vagrant -d'
-    config.vm.provision "shell", inline: 'sudo passwd vagrant -d'
+
+    # config.vm.provision "shell", inline: 'sudo passwd vagrant -d'
 
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "provisioning/deploy.yml" 
         ansible.inventory_path = "provisioning/ansible_hosts"   
-        ansible.verbose = "vvvv"
+        ansible.config.ask_sudo_pass = true
         ansible.limit = "localvagrant"
+        # ansible.verbose = "vvvv"
+        
     end
 end
