@@ -12,24 +12,21 @@
 
 <section>
 
-    <div id="sidebar">
-        
-        <div id="search-container">
-            <input/>
-        </div>
-
-
+    <div id="search-container">
+        <input id="search-id"/>
+        <div id="search-results"></div>
     </div>
+
     <div id="main">
         <div id="attribution"></div>
         <div id="map"></div>
     </div>
 
 </section>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
-<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
 <script src="../../node_modules/cesium/Build/Cesium/Cesium.js"></script>
 
 
@@ -59,7 +56,33 @@ var config = {
     creditContainer: 'attribution'
 }
 
+// var k = _.template()
 
+function search(value, success, error) {
+    $.ajax({
+        url : 'http://localhost:9200/toptour/_search?q=' + value,
+        success: success,
+        error: error
+    });
+}
+
+$searchResults = $('#search-results');
+
+$('#search-id').on('keyup', function(e) {
+
+    search(e.currentTarget.value,
+        function(data) {    
+            $searchResults.empty();
+            _.each(data.hits.hits, 
+                function(hit) {
+                    $searchResults.append("hit: " + hit._source.navn);
+                    addGeoJson(hit._source.geojson);
+                });
+        },
+        function(error) {
+            console.log(error);
+        });
+});
 
 // $.ajax({
 //     method: 'GET', 
@@ -73,7 +96,7 @@ var config = {
 // })
 
 </script>
-<!-- <script src="app.js"></script> -->
+<script src="app.js"></script>
 
 </body>
 </html>

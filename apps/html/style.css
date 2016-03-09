@@ -9,19 +9,18 @@ body {
 }
 
 section {
-
     height: 100%;
     background: aqua;
     margin: auto;
 }
 
 #sidebar {
-    width: 15%;
+    width: 25%;
     height: 100%;
     background-color: #efefef;
     float: left;
 }
- 
+
 #main {
     height:100%;
     width: 75%;

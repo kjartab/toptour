@@ -6,12 +6,15 @@ var client = new elasticsearch.Client({
   // log: 'trace'
 });
 
+var env = 'dev';
+// var env = 'prod'
+
 var config = config || {
-    index : 'toptour'
+    index : 'toptour' + (env === 'dev' ? '_dev' : '')
 }
 
 var turbase = {
-    host: 'http://dev.nasjonalturbase.no',
+    host: (env === 'dev' ? 'dev' : 'api') + '.nasjonalturbase.no',
     port: 80
 };
 
@@ -21,7 +24,7 @@ var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 function getTurBase(objectName, parameters, callback) {
     
     http.get({
-        host: 'dev.nasjonalturbase.no',
+        host: turbase.host,
         path: buildUrl(objectName, parameters)
     }, function(response) {
 
@@ -31,9 +34,10 @@ function getTurBase(objectName, parameters, callback) {
         });
         response.on('end', function() {
 
-            var parsed = JSON.parse(body);
-            console.log(parsed);
-            callback(parsed);
+            var res = JSON.parse(body);
+            checkResponse(res);
+            // console.log(parsed);
+            callback(res);
         });
     });
 }
@@ -113,19 +117,18 @@ function finish() {
 }
 
 function updateChangedDocs(objectName, docs) {
-    console.log(docs);
     var count = _.keys(docs).length;
+    console.log("potentially updating " + count);
     var newDocs = 0;
     function decrement() {
         count--;
-        console.log(count);
+
         if (count==0) {
             console.log("new docs: " + newDocs);
             finish();
         }
     }
     _.each(docs, function(doc) {
-
         var mappedDoc = mapData(doc);
         
         client.search({
@@ -134,30 +137,28 @@ function updateChangedDocs(objectName, docs) {
         }).then(
         function(response) {
             var hits = response.hits.hits;
-            console.log("hits length: ");
-            console.log(hits.length);
+
             if (hits.length === 0) {
-                newDocs++;
 
                 getUt(
                     mappedDoc.utid, 
                     'turer',
                     function(data) {
-                        console.log("got it")
-                        indexDocument(data);
-                        decrement();
+                        indexDocument(data, function() {
+                            newDocs++;
+                            decrement();
+                        });                        
                     },
                     function(err) {
-                         
+                       console.log("error");
                        decrement();
-                        console.log(err, "error")
                     });
             } else {
                 decrement();
             }
         }, 
         function(error) {
-            console.log("error");
+            console.log(error, ' error');
             decrement();
         });
     });
@@ -172,23 +173,34 @@ function mapData(doc) {
     if (doc.hasOwnProperty('_id')) {
         delete doc['_id']
     }
-
+    
     return doc;
+}
+
+function checkResponse(response, success, error) {
+    if (response.hasOwnProperty('message')) {
+        if (response.message === 'API rate limit exceeded') {
+            console.log("API rate");|
+            process.exit();
+        }
+    }
+    success();
 }
 
 function getUt(id, type, success) {
 
     http.get({
-        host: 'api.nasjonalturbase.no',
+        host: turbase.host,
         path: buildUrl(type, { id: id})
     }, function(response) {
-
         var body = '';
         response.on('data', function(d) {
             body += d;
         });
         response.on('end', function() {
-            success(JSON.parse(body));
+            var res = JSON.parse(body);
+            checkResponse(res);
+            success(res);
         });
     });
 }
@@ -217,4 +229,4 @@ function updataData(objectName, parameters) {
 // });
 
 
-updateData('turer', { after : '2012-11-15T22:10:38' , limit: 50 });
+updateData('turer', { after : '2016-02-02T19:10:38' , limit: 50 });
