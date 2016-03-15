@@ -1,0 +1,99 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '--save-dev',
+1 verbose cli   'babel-preset-react@6.3.13øs' ]
+2 info using npm@1.4.29
+3 info using node@v0.10.43
+4 verbose node symlink /usr/bin/node
+5 warn deprecated This version of npm lacks support for important features,
+6 warn deprecated such as scoped packages, offered by the primary npm
+7 warn deprecated registry. Consider upgrading to at least npm@2, if not the
+8 warn deprecated latest stable version. To upgrade to npm@2, run:
+9 warn deprecated npm -g install npm@latest-2
+10 warn deprecated To upgrade to the latest stable version, run:
+11 warn deprecated npm -g install npm@latest
+12 warn deprecated (Depending on how Node.js was installed on your system, you
+13 warn deprecated may need to prefix the preceding commands with `sudo`, or if
+14 warn deprecated on Windows, run them from an Administrator prompt.)
+15 warn deprecated If you're running the version of npm bundled with
+16 warn deprecated Node.js 0.10 LTS, be aware that the next version of 0.10 LTS
+17 warn deprecated will be bundled with a version of npm@2, which has some small
+18 warn deprecated backwards-incompatible changes made to `npm run-script` and
+19 warn deprecated semver behavior.
+20 warn package.json nedkoyring@1.0.0 No description
+21 warn package.json nedkoyring@1.0.0 No repository field.
+22 verbose readDependencies using package.json deps
+23 verbose cache add [ 'babel-preset-react@6.3.13øs', null ]
+24 verbose cache add name=undefined spec="babel-preset-react@6.3.13øs" args=["babel-preset-react@6.3.13øs",null]
+25 verbose parsed url { protocol: null,
+25 verbose parsed url   slashes: null,
+25 verbose parsed url   auth: null,
+25 verbose parsed url   host: null,
+25 verbose parsed url   port: null,
+25 verbose parsed url   hostname: null,
+25 verbose parsed url   hash: null,
+25 verbose parsed url   search: null,
+25 verbose parsed url   query: null,
+25 verbose parsed url   pathname: 'babel-preset-react@6.3.13øs',
+25 verbose parsed url   path: 'babel-preset-react@6.3.13øs',
+25 verbose parsed url   href: 'babel-preset-react@6.3.13øs' }
+26 verbose cache add name="babel-preset-react" spec="6.3.13øs" args=["babel-preset-react","6.3.13øs"]
+27 verbose parsed url { protocol: null,
+27 verbose parsed url   slashes: null,
+27 verbose parsed url   auth: null,
+27 verbose parsed url   host: null,
+27 verbose parsed url   port: null,
+27 verbose parsed url   hostname: null,
+27 verbose parsed url   hash: null,
+27 verbose parsed url   search: null,
+27 verbose parsed url   query: null,
+27 verbose parsed url   pathname: '6.3.13øs',
+27 verbose parsed url   path: '6.3.13øs',
+27 verbose parsed url   href: '6.3.13øs' }
+28 verbose addNamed [ 'babel-preset-react', '6.3.13øs' ]
+29 verbose addNamed [ null, null ]
+30 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
+31 verbose lock babel-preset-react@6.3.13øs /home/kjartan/.npm/35e10da7-babel-preset-react-6-3-13-s.lock
+32 info addNameTag [ 'babel-preset-react', '6.3.13øs' ]
+33 verbose request where is /babel-preset-react
+34 verbose request registry https://registry.npmjs.org/
+35 verbose request id 68d795eeafd13e82
+36 verbose url raw /babel-preset-react
+37 verbose url resolving [ 'https://registry.npmjs.org/', './babel-preset-react' ]
+38 verbose url resolved https://registry.npmjs.org/babel-preset-react
+39 verbose request where is https://registry.npmjs.org/babel-preset-react
+40 info trying registry request attempt 1 at 23:30:01
+41 verbose etag "AAXQGJEKJSO0IQ1TMI84425A4"
+42 http GET https://registry.npmjs.org/babel-preset-react
+43 http 304 https://registry.npmjs.org/babel-preset-react
+44 silly registry.get cb [ 304,
+44 silly registry.get   { date: 'Mon, 14 Mar 2016 22:30:01 GMT',
+44 silly registry.get     via: '1.1 varnish',
+44 silly registry.get     'cache-control': 'max-age=300',
+44 silly registry.get     etag: '"AAXQGJEKJSO0IQ1TMI84425A4"',
+44 silly registry.get     age: '280',
+44 silly registry.get     connection: 'keep-alive',
+44 silly registry.get     'x-served-by': 'cache-fra1220-FRA',
+44 silly registry.get     'x-cache': 'HIT',
+44 silly registry.get     'x-cache-hits': '1',
+44 silly registry.get     'x-timer': 'S1457994601.691821,VS0,VE0',
+44 silly registry.get     vary: 'Accept' } ]
+45 verbose etag https://registry.npmjs.org/babel-preset-react from cache
+46 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
+47 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
+48 error notarget No compatible version found: babel-preset-react@'6.3.13øs'
+48 error notarget Valid install targets:
+48 error notarget ["6.0.2","6.0.12","6.0.14","6.0.15","6.1.2","6.1.4","6.1.17","6.1.18","6.2.4","6.3.13","6.5.0","6.5.0-1"]
+48 error notarget
+48 error notarget This is most likely not a problem with npm itself.
+48 error notarget In most cases you or one of your dependencies are requesting
+48 error notarget a package version that doesn't exist.
+49 error System Linux 3.19.0-51-generic
+50 error command "/usr/bin/node" "/usr/bin/npm" "install" "--save-dev" "babel-preset-react@6.3.13øs"
+51 error cwd /home/kjartan/projects/toptour
+52 error node -v v0.10.43
+53 error npm -v 1.4.29
+54 error code ETARGET
+55 verbose exit [ 1, true ]

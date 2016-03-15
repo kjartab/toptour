@@ -35,9 +35,9 @@ function getTurBase(objectName, parameters, callback) {
         response.on('end', function() {
 
             var res = JSON.parse(body);
-            checkResponse(res);
+            checkResponse(res, callback);
             // console.log(parsed);
-            callback(res);
+            // callback(res);
         });
     });
 }
@@ -122,7 +122,7 @@ function updateChangedDocs(objectName, docs) {
     var newDocs = 0;
     function decrement() {
         count--;
-
+        console.log(count);
         if (count==0) {
             console.log("new docs: " + newDocs);
             finish();
@@ -139,21 +139,24 @@ function updateChangedDocs(objectName, docs) {
             var hits = response.hits.hits;
 
             if (hits.length === 0) {
-
+                console.log("does not exist in index");
                 getUt(
                     mappedDoc.utid, 
                     'turer',
                     function(data) {
+                        console.log("indexing doc");
                         indexDocument(data, function() {
                             newDocs++;
                             decrement();
-                        });                        
+                        });         
                     },
                     function(err) {
                        console.log("error");
+
                        decrement();
                     });
             } else {
+                console.log("exists in index");
                 decrement();
             }
         }, 
@@ -167,8 +170,6 @@ function updateChangedDocs(objectName, docs) {
 }
 
 function mapData(doc) {
-    // console.log(doc._id);
-
     doc.utid = doc._id;
     if (doc.hasOwnProperty('_id')) {
         delete doc['_id']
@@ -180,14 +181,17 @@ function mapData(doc) {
 function checkResponse(response, success, error) {
     if (response.hasOwnProperty('message')) {
         if (response.message === 'API rate limit exceeded') {
-            console.log("API rate");|
-            process.exit();
+            console.log("API rate exceedded");
+            if (error) {
+                error(response);               
+            }
+            finish();
         }
     }
-    success();
+    success(response);
 }
 
-function getUt(id, type, success) {
+function getUt(id, type, success, error) {
 
     http.get({
         host: turbase.host,
@@ -199,8 +203,7 @@ function getUt(id, type, success) {
         });
         response.on('end', function() {
             var res = JSON.parse(body);
-            checkResponse(res);
-            success(res);
+            checkResponse(res, success, error);
         });
     });
 }
@@ -219,14 +222,7 @@ function indexDocument(doc, success) {
 }
 
 
-// update the
-function updataData(objectName, parameters) {
-    getTurbase(buildUrl(objectName, parameters), callback);
-}
-
-// getTurBase('turer', null, function(data) {  
-//     console.log(data);
-// });
 
 
-updateData('turer', { after : '2016-02-02T19:10:38' , limit: 50 });
+
+updateData('turer', { after : '2016-01-01T19:10:38' , limit: 50 });

@@ -1,0 +1,7 @@
+---
+- git:
+    accept_hostkey: True
+    dest: ~/projects/{{project_name}}
+    force: yes
+    update: yes
+    repo: https://github.com/kjartab/{{project_name}}

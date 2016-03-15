@@ -46,7 +46,7 @@ function addGeoJson(geojson) {
         strokeWidth: 3,
         markerSymbol: '?'
     }));
-}
+} 
 
 function dd(positions) {
 
