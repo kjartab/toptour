@@ -16,7 +16,8 @@ var turbase = {
     host: (env === 'dev' ? 'dev' : 'api') + '.nasjonalturbase.no',
     port: 80
 };
-
+console.log(turbase.host);
+console.log(config.index);
 var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 
 
@@ -42,10 +43,12 @@ function getTurBase(objectName, parameters, callback) {
 var requestCounter = 0;
 var parameters;
 var limitExceeded = false;
+var docsIndexed = 0;
 var newDocs = 0;
 var existing = 0;
 var total = 0;
 var docsFound= 0;
+var deletedDocs = 0;
 var docsProcessed = 0;
 var docsMapped = 0;
 
@@ -65,6 +68,10 @@ function buildUrl(objectName, parameters) {
 
 
 function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
+
+    if (counter%20 == 0) {
+        process.stdout.write(counter + "...");
+    }
 
     getTurBase(objectName, parameters, function(data) {
         counter += data.count;
@@ -109,18 +116,6 @@ function updateData(objectName, parameters) {
 
 }
 
-function buildIndex(index, doc) {
-    return JSON.stringify({
-        index: index,
-        body: {
-            query: {
-                term: {
-                    utid: doc.utid
-                }
-            }
-        }
-    });
-}
 
 function buildQuery(doc) {
     return JSON.stringify({
@@ -147,60 +142,88 @@ function printLoadStatus() {
     console.log("Retrieved documents that were up to date: " + existing);
     console.log("Processed " + docsProcessed);
     console.log("Documents mapped " + docsMapped);
+    console.log("Documents deleted " + deletedDocs);
     console.log("Documents found " + docsFound);
+    console.log("Documents indexed " + docsIndexed);
     console.log("Requests sent to Turbase server: " + requestCounter);
     return;
 }
 
-function handleIndexLookupResponse(response, completedCallback) {
-            console.log("handle response");
-            var mappedDoc = mapData(response);
+function deleteDocuments(hits, callback) {
+    var counter = hits.length;
+    var onReturn = function() {
+        counter--;
+        if(counter === 0) {
+            callback();
+        }
+    } 
+    _.each(hits, function(hit) {
+        deleteDocument(hit._id, onReturn, onReturn);
+    });
 
-            if (mappedDoc) {
+}
+
+function getAndIndex(doc, type, completedCallback) {
+    if (!limitExceeded) {
+    getUt(
+        doc.utid,
+        type,
+        function(data) {
+            indexDocument(data, completedCallback, completedCallback);
+        },
+        function() {
+            completedCallback(); 
+        }
+    );
+
+    } else {
+        console.log("Skipped getting, limit exceeded");
+        completedCallback();
+    }
+
+}
+
+function handleIndexLookupResponse(mappedDoc, response, completedCallback) {
+
+            if (mappedDoc && !limitExceeded) {
                 var hits = response.hits.hits;
-                if (hits.length === 0) {
-                    console.log("hits === 0");
-                    // The document does not exist in index - index it
-                    getUt(
-                        mappedDoc.utid, 
-                        'turer', 
-                        function(data) {
-                            indexDocument(data, completedCallback, completedCallback);
-                        }, 
-                        function() {
-                            completedCallback(); 
-                            console.log("error getting doc from UT.no")
-                        }
-                    );
 
+                // The document does not exist - index it
+                if (hits.length === 0) {
+                    console.log("indexing new document - was not present in index", mappedDoc.utid);
+                    getAndIndex(mappedDoc, 'turer', completedCallback);
+
+                // Duplicates in data store, delete all and take UT.no version
                 } else if (hits.length > 1) {
-                    console.log("hits > 1");
-                    // There are two documents with the same Ut.no ID. Something is wrong.
-                     console.log("Duplicates!" + hits[0]._source.utid);
+                    console.log("MORE than one document with this ID, delete all and index")
+                    
+                    deleteDocuments(hits, function() {
+                        getAndIndex(mappedDoc, 'turer', completedCallback);
+                    });
+
+                // One exact match, check timestamp
                 } else {
 
-                    console.log("HANDEL");
-                    console.log(mappedDoc);
-                    if (response.hits.hits[0]._source.endret == mappedDoc.endret) {
-                    console.log("hits similar");
+
+                    if (hits[0]._source.endret == mappedDoc.endret) {
+                        completedCallback();
                         // Same document
                     } else {
-                        // For now, take the UT.no document
-                        getUt(
-                            mappedDoc.utid, 
-                            'turer', 
-                            function(data) {
-                                 console.log("hits === 0");
-                                indexDocument(data, completedCallback, completedCallback);
-                            }, 
+                        var localDoc = response.hits.hits[0];
+
+                        // if (Date.parse(localDoc._source.endret) < Date.parse(mappedDoc.endret)) {
+                            deleteDocument(localDoc._id, 
                             function() {
-                                completedCallback(); 
-                                console.log("error getting doc from UT.no")
-                            }
-                        );
+                                getAndIndex(mappedDoc, 'turer', completedCallback);
+                            },
+                            completedCallback);
+                        // }
+
+                        
                     }
                 }
             } else {
+                console.log("limited exceeded or doc incorrect");
                 completedCallback();
             }
             
@@ -208,9 +231,34 @@ function handleIndexLookupResponse(response, completedCallback) {
 
 }
 
+function deleteDocument(id, success, error) {
+
+    deletedDocs++;
+    client.delete(
+    { 
+        index: config.index, 
+        type: 'tour',
+        id : id
+    },
+    function(err, data) {
+        if (err) {
+            console.log("could not delete " + id);
+            console.log(err);
+            if (error) {
+                error();   
+            }
+        } else {
+            if (success) {
+
+            }
+        }
+    });
+
+}
+
 function updateChangedDocs(objectName, docs) {
     var count = _.keys(docs).length;
-
+    console.log(docs);
 
     console.log("potentially updating " + count + "\r\n");
 
@@ -218,7 +266,6 @@ function updateChangedDocs(objectName, docs) {
 
     function completedCallback(utid) {
         completed++;
-
         if (completed == count) {
             finish();
         }
@@ -228,25 +275,22 @@ function updateChangedDocs(objectName, docs) {
 
         var mappedDoc = mapData(doc);
         if (mappedDoc) {
-            console.log("mapping ok")
             // The document is ok (i.e. it is a valid UT.no document)
-            printLoadStatus();
+
             docsMapped++;
 
             client.search({
                 index : config.index,
                 body: buildQuery(mappedDoc)
-            },function(err, data) {
-                    console.log("es return");
-                    if (err) {
-                        completedCallback();
-                    } else {
-                        handleIndexLookupResponse(data, completedCallback);
-                    }
-
-                    
-                }
-            );
+            },
+            function(err, data) {
+                if (err) {
+                    console.log("error", err);
+                    completedCallback();
+                } else {
+                    handleIndexLookupResponse(mappedDoc, data, completedCallback);
+                }             
+            });
     	} else {
     		completedCallback();
     	}
@@ -256,6 +300,7 @@ function updateChangedDocs(objectName, docs) {
 }
 
 function mapData(doc) {
+
     if (verifyDoc(doc)) {
 
         doc.utid = doc._id;
@@ -294,7 +339,8 @@ function checkResponse(response, success, error) {
 }
 
 function getUt(id, type, success, error) {
-
+    requestCounter++;
+    console.log("get id " + type + ": " + id);
     http.get({
         host: turbase.host,
         path: buildUrl(type, { id: id})
@@ -308,13 +354,16 @@ function getUt(id, type, success, error) {
             checkResponse(res, success, error);
         });
     });
+
 }
 
 function indexDocument(doc, success, error) {
     var mappedDoc = mapData(doc);
+    docsIndexed++;
+
     client.index(
         { 
-            index: config.index, 
+            index: config.index,
             type: 'tour',
             body : mappedDoc
         },
@@ -322,14 +371,20 @@ function indexDocument(doc, success, error) {
             if (err) {
                 error();
             } else {
-                success(data);
+                if (success) {
+                    success(data);
+                }
+                
             }
         });
 }
 
 
+function deleteDuplicates() {
+
+    
+}
 
 
-
-parameters =  { after : '2015-03-11T19:10:38' , limit: 50 };
+parameters =  { after : '2015-11-01T19:10:38' , limit: 50 };
 updateData('turer', parameters);
