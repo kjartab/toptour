@@ -5,9 +5,15 @@ var client = new elasticsearch.Client({
   host: 'localhost:9200'
   // log: 'trace'
 });
+var arg;
+var args = process.argv;
+var env = 'prod';
+if (args.length > 2) {
+    if (args[2] === 'dev') {
+        env = 'dev';
+    }
+}
 
-var env = 'dev';
-var env = 'prod'
 var config = config || {
     index : 'toptour' + (env === 'dev' ? '_dev' : '')
 }
@@ -16,8 +22,7 @@ var turbase = {
     host: (env === 'dev' ? 'dev' : 'api') + '.nasjonalturbase.no',
     port: 80
 };
-console.log(turbase.host);
-console.log(config.index);
+
 var api_key = '0e1718433eece23d17c3f49c55018c5bd2181c99';
 
 
@@ -104,15 +109,83 @@ function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
 }
 
 
+function fetchNewUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
+
+    if (counter%20 == 0) {
+        process.stdout.write(counter + "...");
+    }
+
+    getTurBase(objectName, parameters, function(data) {
+        counter += data.count;
+        total = data.total;
+        parameters.skip = counter;
+
+        checkResponse(
+            data, 
+            function(data) {
+
+                storeNewUpdates(data, function() {
+                    if (counter < total) {
+                        fetchNewUpdates(objectName, parameters, counter, updatedDocs, endCallback);
+                    } else {
+                        console.log("start loading , counter : " + counter);
+                        endCallback(objectName, updatedDocs);
+                        return;
+                    }
+                });
+
+            },  
+            function() {
+                console.log("api limit reached - start loading");
+                endcallback(objectName, updatedDocs);
+            }
+        );
+    });
+}
+
+function storeNewUpdates(data, callback) {
+
+    var body = [];
+
+    _.each(data.documents, function(doc) {
+
+        doc.utid = doc._id;
+        if (doc.hasOwnProperty('_id')) {
+            delete doc['_id'];
+        }
+        var indx = {
+                index : 
+                { 
+                    _id: 2,
+                    _index: config.index,
+                    _type: 'tour_update'
+                }
+            };
+        body.push(indx);
+        body.push({ doc: { title: 'foo' } });
+    });
+    console.log(body);
+    client.bulk([
+            // action description
+            { index:  { _index: 'myindex', _type: 'mytype', _id: 1 } },
+             // the document to index
+            { title: 'foo' }
+        ], function(err, data) {
+            console.log("store new updates");
+            callback();
+    });
+
+}
+
 
 function updateData(objectName, parameters) {
 
 
-    var parameters = parameters || { after : '2016-03-07T19:10:38', limit : 50, skip : 0 };
+    var parameters = parameters || { after : '2016-03-15T00:00:38', limit : 50, skip : 0 };
     var counter = 0;
     var updatedDocs = {};
 
-    getUpdates(objectName, parameters, counter, updatedDocs, updateChangedDocs);
+    fetchNewUpdates(objectName, parameters, counter, updatedDocs, updateChangedDocs);
 
 }
 
@@ -256,9 +329,16 @@ function deleteDocument(id, success, error) {
 
 }
 
+function storeChangedDocs(objectName, docs) {
+
+
+}
+
 function updateChangedDocs(objectName, docs) {
-    var count = _.keys(docs).length;
-    console.log(docs);
+    var count = 0;
+    _.each(docs, function(doc) {
+        count++;
+    });
 
     console.log("potentially updating " + count + "\r\n");
 
@@ -361,30 +441,26 @@ function indexDocument(doc, success, error) {
     var mappedDoc = mapData(doc);
     docsIndexed++;
 
-    client.index(
-        { 
-            index: config.index,
-            type: 'tour',
-            body : mappedDoc
-        },
-        function(err, data) {
-            if (err) {
-                error();
-            } else {
-                if (success) {
-                    success(data);
-                }
-                
+    client.index({ 
+        index: config.index,
+        type: 'tour',
+        body : mappedDoc
+    },
+    function(err, data) {
+        if (err) {
+            error();
+        } else {
+            if (success) {
+                success(data);
             }
-        });
+            
+        }
+    });
 }
 
 
-function deleteDuplicates() {
-
-    
-}
 
 
-parameters =  { after : '2015-11-01T19:10:38' , limit: 50 };
+
+parameters =  { after : '2016-03-01T19:10:38' , limit: 50 };
 updateData('turer', parameters);

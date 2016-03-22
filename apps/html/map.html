@@ -1,0 +1,179 @@
+<html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="../../node_modules/openlayers/dist/ol.css">
+      
+
+
+</head>
+<body>
+
+<section>
+
+    <div id="search-container">
+        <input id="search-id"/>
+        <div id="search-results"></div>
+    </div>
+
+    <div id="main">
+        <div id="attribution"></div>
+        <div id="map"></div>
+    </div>
+
+</section>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+<script src="../../node_modules/openlayers/dist/ol-debug.js"></script>
+
+<script>
+
+var map = new ol.Map({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        target: 'map',
+        view: new ol.View({
+          center: [0, 0],
+          zoom: 2
+        })
+      });
+
+function search(value, success, error) {
+    $.ajax({
+        url : 'http://localhost:9200/toptour/_search?q=' + value,
+        success: success,
+        error: error
+    });
+}
+
+$searchResults = $('#search-results');
+
+$('#search-id').on('keyup', function(e) {
+
+    search(e.currentTarget.value,
+        function(data) {    
+            $searchResults.empty();
+            _.each(data.hits.hits, 
+                function(hit) {
+                    var $hit = $("<p>" + hit._source.navn + '</p>').on('click', function(e) {
+                            addGeoJson(hit._source.geojson);
+                        });
+                    $searchResults.append($hit);
+                    // addGeoJson(hit._source.geojson);
+                });
+        },
+        function(error) {
+            console.log(error);
+        });
+});
+
+
+// $.ajax({
+//     method: 'GET', 
+//     url : 'http://dev.nasjonalturbase.no/turer?api_key=0e1718433eece23d17c3f49c55018c5bd2181c99',
+//     success: function(data) {
+//         console.log(data);
+//     },
+//     error: function(data) {
+//         console.log(data);
+//     }
+// })
+      var geojsonObject = {
+        'type': 'FeatureCollection',
+        'crs': {
+          'type': 'name',
+          'properties': {
+            'name': 'EPSG:3857'
+          }
+        },
+        'features': [{
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [0, 0]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': [[4e6, -2e6], [8e6, 2e6]]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': [[4e6, 2e6], [8e6, -2e6]]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Polygon',
+            'coordinates': [[[-5e6, -1e6], [-4e6, 1e6], [-3e6, -1e6]]]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'MultiLineString',
+            'coordinates': [
+              [[-1e6, -7.5e5], [-1e6, 7.5e5]],
+              [[1e6, -7.5e5], [1e6, 7.5e5]],
+              [[-7.5e5, -1e6], [7.5e5, -1e6]],
+              [[-7.5e5, 1e6], [7.5e5, 1e6]]
+            ]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'MultiPolygon',
+            'coordinates': [
+              [[[-5e6, 6e6], [-5e6, 8e6], [-3e6, 8e6], [-3e6, 6e6]]],
+              [[[-2e6, 6e6], [-2e6, 8e6], [0, 8e6], [0, 6e6]]],
+              [[[1e6, 6e6], [1e6, 8e6], [3e6, 8e6], [3e6, 6e6]]]
+            ]
+          }
+        }, {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'GeometryCollection',
+            'geometries': [{
+              'type': 'LineString',
+              'coordinates': [[-5e6, -5e6], [0, -5e6]]
+            }, {
+              'type': 'Point',
+              'coordinates': [4e6, -5e6]
+            }, {
+              'type': 'Polygon',
+              'coordinates': [[[1e6, -6e6], [2e6, -4e6], [3e6, -6e6]]]
+            }]
+          }
+        }]
+      };
+
+function addGeoJson(data) {
+
+
+    var vectorSource = new ol.source.Vector({
+        features: new ol.format.GeoJSON()
+    });
+    console.log(data);
+    vectorSource.addFeature(new ol.Feature(data));
+
+      var vectorLayer = new ol.layer.Vector({
+        source: vectorSource
+      });
+    map.addLayer(vectorLayer);
+}
+
+</script>
+
+
+</body>
+</html>

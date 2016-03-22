@@ -3,8 +3,12 @@
   hosts: localvagrant
   sudo: yes
   remote_user: vagrant
+  vars:
+    project_name: toptour
   roles:
-    - elasticsearch
+    - node
+    - elasticsearch 
+    - prod_deploy
 # - name: Install node
 #   hosts: localvagrant
 #   remote_user: ansible

@@ -23,6 +23,9 @@
     </div>
 
 </section>
+
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
   <!-- Compiled and minified JavaScript -->
@@ -75,8 +78,11 @@ $('#search-id').on('keyup', function(e) {
             $searchResults.empty();
             _.each(data.hits.hits, 
                 function(hit) {
-                    $searchResults.append("hit: " + hit._source.navn);
-                    addGeoJson(hit._source.geojson);
+                    var $hit = $("<p>" + hit._source.navn + '</p>').on('click', function(e) {
+                            addGeoJson(hit._source.geojson);
+                        });
+                    $searchResults.append($hit);
+                    // addGeoJson(hit._source.geojson);
                 });
         },
         function(error) {

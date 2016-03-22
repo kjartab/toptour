@@ -9,7 +9,7 @@ var client = new elasticsearch.Client({
 
 
 var env = 'dev';
-// var env = 'prod'
+var env = 'prod';
 var config = config || {
     index : 'toptour' + (env === 'dev' ? '_dev' : '')
 }
@@ -50,7 +50,7 @@ function deleteDocument(id, success, error) {
 }
 
 function getQuery() {
-    
+
 }
 
 function lookThrough() {
@@ -63,7 +63,7 @@ function lookThrough() {
       index: config.index,
       // Set to 30 seconds because we are calling right back
       scroll: '30s',
-      search_type: 'scan',
+      search_type: 'scan',  
       q: getQuery()
     }, function getMoreUntilDone(error, response) {
       // collect the title from each response
@@ -110,7 +110,7 @@ function deleteDocument(id, success, error) {
             }
         } else {
             if (success) {
-                
+
             }
         }
     });

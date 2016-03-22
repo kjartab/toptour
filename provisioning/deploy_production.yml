@@ -1,13 +1,13 @@
 ---
 - name: toptour
-  hosts: kartan
+  hosts: e6420
   sudo: yes
-  remote_user: ansible
+  remote_user: kjartan
   vars:
     project_name: toptour
   roles:
-    # - elasticsearch 
-    # - node
+    - elasticsearch 
+    - node
     - prod_deploy
 # - name: Install node
 #   hosts: localvagrant

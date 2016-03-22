@@ -1,9 +1,5 @@
 0 info it worked if it ends with ok
-1 verbose cli [ '/usr/bin/node',
-1 verbose cli   '/usr/bin/npm',
-1 verbose cli   'install',
-1 verbose cli   '--save-dev',
-1 verbose cli   'babel-preset-react@6.3.13øs' ]
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', 'openlayers3' ]
 2 info using npm@1.4.29
 3 info using node@v0.10.43
 4 verbose node symlink /usr/bin/node
@@ -25,8 +21,8 @@
 20 warn package.json nedkoyring@1.0.0 No description
 21 warn package.json nedkoyring@1.0.0 No repository field.
 22 verbose readDependencies using package.json deps
-23 verbose cache add [ 'babel-preset-react@6.3.13øs', null ]
-24 verbose cache add name=undefined spec="babel-preset-react@6.3.13øs" args=["babel-preset-react@6.3.13øs",null]
+23 verbose cache add [ 'openlayers3', null ]
+24 verbose cache add name=undefined spec="openlayers3" args=["openlayers3",null]
 25 verbose parsed url { protocol: null,
 25 verbose parsed url   slashes: null,
 25 verbose parsed url   auth: null,
@@ -36,64 +32,55 @@
 25 verbose parsed url   hash: null,
 25 verbose parsed url   search: null,
 25 verbose parsed url   query: null,
-25 verbose parsed url   pathname: 'babel-preset-react@6.3.13øs',
-25 verbose parsed url   path: 'babel-preset-react@6.3.13øs',
-25 verbose parsed url   href: 'babel-preset-react@6.3.13øs' }
-26 verbose cache add name="babel-preset-react" spec="6.3.13øs" args=["babel-preset-react","6.3.13øs"]
-27 verbose parsed url { protocol: null,
-27 verbose parsed url   slashes: null,
-27 verbose parsed url   auth: null,
-27 verbose parsed url   host: null,
-27 verbose parsed url   port: null,
-27 verbose parsed url   hostname: null,
-27 verbose parsed url   hash: null,
-27 verbose parsed url   search: null,
-27 verbose parsed url   query: null,
-27 verbose parsed url   pathname: '6.3.13øs',
-27 verbose parsed url   path: '6.3.13øs',
-27 verbose parsed url   href: '6.3.13øs' }
-28 verbose addNamed [ 'babel-preset-react', '6.3.13øs' ]
-29 verbose addNamed [ null, null ]
-30 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
-31 verbose lock babel-preset-react@6.3.13øs /home/kjartan/.npm/35e10da7-babel-preset-react-6-3-13-s.lock
-32 info addNameTag [ 'babel-preset-react', '6.3.13øs' ]
-33 verbose request where is /babel-preset-react
-34 verbose request registry https://registry.npmjs.org/
-35 verbose request id 68d795eeafd13e82
-36 verbose url raw /babel-preset-react
-37 verbose url resolving [ 'https://registry.npmjs.org/', './babel-preset-react' ]
-38 verbose url resolved https://registry.npmjs.org/babel-preset-react
-39 verbose request where is https://registry.npmjs.org/babel-preset-react
-40 info trying registry request attempt 1 at 23:30:01
-41 verbose etag "AAXQGJEKJSO0IQ1TMI84425A4"
-42 http GET https://registry.npmjs.org/babel-preset-react
-43 http 304 https://registry.npmjs.org/babel-preset-react
-44 silly registry.get cb [ 304,
-44 silly registry.get   { date: 'Mon, 14 Mar 2016 22:30:01 GMT',
-44 silly registry.get     via: '1.1 varnish',
-44 silly registry.get     'cache-control': 'max-age=300',
-44 silly registry.get     etag: '"AAXQGJEKJSO0IQ1TMI84425A4"',
-44 silly registry.get     age: '280',
-44 silly registry.get     connection: 'keep-alive',
-44 silly registry.get     'x-served-by': 'cache-fra1220-FRA',
-44 silly registry.get     'x-cache': 'HIT',
-44 silly registry.get     'x-cache-hits': '1',
-44 silly registry.get     'x-timer': 'S1457994601.691821,VS0,VE0',
-44 silly registry.get     vary: 'Accept' } ]
-45 verbose etag https://registry.npmjs.org/babel-preset-react from cache
-46 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
-47 silly lockFile 35e10da7-babel-preset-react-6-3-13-s babel-preset-react@6.3.13øs
-48 error notarget No compatible version found: babel-preset-react@'6.3.13øs'
-48 error notarget Valid install targets:
-48 error notarget ["6.0.2","6.0.12","6.0.14","6.0.15","6.1.2","6.1.4","6.1.17","6.1.18","6.2.4","6.3.13","6.5.0","6.5.0-1"]
-48 error notarget
-48 error notarget This is most likely not a problem with npm itself.
-48 error notarget In most cases you or one of your dependencies are requesting
-48 error notarget a package version that doesn't exist.
-49 error System Linux 3.19.0-51-generic
-50 error command "/usr/bin/node" "/usr/bin/npm" "install" "--save-dev" "babel-preset-react@6.3.13øs"
+25 verbose parsed url   pathname: 'openlayers3',
+25 verbose parsed url   path: 'openlayers3',
+25 verbose parsed url   href: 'openlayers3' }
+26 silly lockFile 17ee1413-openlayers3 openlayers3
+27 verbose lock openlayers3 /home/kjartan/.npm/17ee1413-openlayers3.lock
+28 silly lockFile 17ee1413-openlayers3 openlayers3
+29 silly lockFile 17ee1413-openlayers3 openlayers3
+30 verbose addNamed [ 'openlayers3', '' ]
+31 verbose addNamed [ null, '*' ]
+32 silly lockFile 84504d28-openlayers3 openlayers3@
+33 verbose lock openlayers3@ /home/kjartan/.npm/84504d28-openlayers3.lock
+34 silly addNameRange { name: 'openlayers3', range: '*', hasData: false }
+35 verbose request where is /openlayers3
+36 verbose request registry https://registry.npmjs.org/
+37 verbose request id 9d111f502c64dd8e
+38 verbose url raw /openlayers3
+39 verbose url resolving [ 'https://registry.npmjs.org/', './openlayers3' ]
+40 verbose url resolved https://registry.npmjs.org/openlayers3
+41 verbose request where is https://registry.npmjs.org/openlayers3
+42 info trying registry request attempt 1 at 00:16:21
+43 http GET https://registry.npmjs.org/openlayers3
+44 http 404 https://registry.npmjs.org/openlayers3
+45 silly registry.get cb [ 404,
+45 silly registry.get   { 'content-type': 'application/json',
+45 silly registry.get     'cache-control': 'max-age=0',
+45 silly registry.get     'content-length': '2',
+45 silly registry.get     'accept-ranges': 'bytes',
+45 silly registry.get     date: 'Sat, 19 Mar 2016 23:16:22 GMT',
+45 silly registry.get     via: '1.1 varnish',
+45 silly registry.get     age: '0',
+45 silly registry.get     connection: 'keep-alive',
+45 silly registry.get     'x-served-by': 'cache-fra1224-FRA',
+45 silly registry.get     'x-cache': 'MISS',
+45 silly registry.get     'x-cache-hits': '0',
+45 silly registry.get     'x-timer': 'S1458429381.945382,VS0,VE399' } ]
+46 silly lockFile 84504d28-openlayers3 openlayers3@
+47 silly lockFile 84504d28-openlayers3 openlayers3@
+48 error 404 Not Found
+48 error 404
+48 error 404 'openlayers3' is not in the npm registry.
+48 error 404 You should bug the author to publish it
+48 error 404 It was specified as a dependency of 'nedkoyring'
+48 error 404
+48 error 404 Note that you can also install from a
+48 error 404 tarball, folder, or http url, or git url.
+49 error System Linux 3.19.0-56-generic
+50 error command "/usr/bin/node" "/usr/bin/npm" "install" "openlayers3"
 51 error cwd /home/kjartan/projects/toptour
 52 error node -v v0.10.43
 53 error npm -v 1.4.29
-54 error code ETARGET
+54 error code E404
 55 verbose exit [ 1, true ]

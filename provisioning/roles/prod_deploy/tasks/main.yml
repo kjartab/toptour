@@ -1,4 +1,7 @@
 ---
+- name: create and copy config file for nginx app
+  template: src=nginx.j2 dest=/etc/nginx/conf.d/apps/{{project_name}}
+  sudo: yes
 - git:
     accept_hostkey: True
     dest: ~/projects/{{project_name}}
