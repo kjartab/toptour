@@ -9,7 +9,7 @@ var client = new elasticsearch.Client({
 
 
 var env = 'dev';
-var env = 'prod';
+// var env = 'prod';
 var config = config || {
     index : 'toptour' + (env === 'dev' ? '_dev' : '')
 }
@@ -73,10 +73,10 @@ function lookThrough() {
                 // deleteDocument(hit._id, 'tour', config.index);
                 console.log(hit);
                 console.log(hit._id);
+            } else {
+                searchOnUtId(hit._source.utid);
+
             }
-            // console.log(hit);
-
-
         });
 
       if (response.hits.total !== allTitles.length) {
@@ -89,6 +89,46 @@ function lookThrough() {
         console.log('every "test" title', allTitles);
       }
     });
+}
+
+
+
+var count = 0;
+function searchOnUtId(utid) {
+    console.log(count++);
+    client.search({
+        index : config.index,
+        body: JSON.stringify({
+            query: {
+                term: {
+                    utid: utid
+                }
+            }
+        })
+    },
+    function(err, data) {
+        if (err) {
+            console.log("error", err);
+            error(err);
+        } else {
+
+            var hits = data.hits.hits;
+
+            if (hits.length === 0) {
+                console.log("BIG ERROR");
+
+
+            } else if (hits.length > 1) {
+                
+                console.log("DUPLICATE!!!", utid);
+
+            } else if (hits.length === 1) {
+                2
+            } else {
+                console.log("BIG ERROR!!");
+            }
+        }             
+    });   
 }
 
 

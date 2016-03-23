@@ -72,120 +72,108 @@ function buildUrl(objectName, parameters) {
 }
 
 
-function getUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
 
-    if (counter%20 == 0) {
-        process.stdout.write(counter + "...");
-    }
+
+function fetchAndHandleUpdates(objectName, parameters, success, err) {
 
     getTurBase(objectName, parameters, function(data) {
-        counter += data.count;
-        total = data.total;
-        parameters.skip = counter;
-
-        checkResponse(
-            data, 
-            function(data) {
-
-                _.each(data.documents, function(doc) {
-                    updatedDocs[doc._id] = doc;
-                });
-
-                if (counter < total) {
-                    getUpdates(objectName, parameters, counter, updatedDocs, endCallback);
-                } else {
-                    console.log("start loading , counter : " + counter);
-                    endCallback(objectName, updatedDocs);
-                    return;
-                }
-
-            },  
-            function() {
-                console.log("api limit reached - start loading");
-                endcallback(objectName, updatedDocs);
-            }
-        );
-    });
-}
+        console.log("received updates");
+        var check = true;//checkResponse(data);
+        if (check) {
+            console.log("check ok", data.count, data.total);
+            parameters.skip += data.count;
+            console.log(data.count + " > 0 &&  " + data.total + " !=  " +parameters.skip)
+            if (data.count > 0 && data.total != parameters.skip) {
 
 
-function fetchNewUpdates(objectName, parameters, counter, updatedDocs, endCallback) {
-
-    if (counter%20 == 0) {
-        process.stdout.write(counter + "...");
-    }
-
-    getTurBase(objectName, parameters, function(data) {
-        counter += data.count;
-        total = data.total;
-        parameters.skip = counter;
-
-        checkResponse(
-            data, 
-            function(data) {
-
-                storeNewUpdates(data, function() {
-                    if (counter < total) {
-                        fetchNewUpdates(objectName, parameters, counter, updatedDocs, endCallback);
-                    } else {
-                        console.log("start loading , counter : " + counter);
-                        endCallback(objectName, updatedDocs);
-                        return;
+                handleUpdates(
+                    data.documents, 
+                    function(data) {
+                        console.log("fetch and handle updates - CALLBACK")
+                        console.log("next", parameters.skip);
+                        fetchAndHandleUpdates(objectName, parameters, success, err);
+                    },
+                    function(data) {
+                        console.log("error next");
+                        err();    
+                        console.log("fetch and handle updates - ERROR")
                     }
-                });
+                    );
+            } else {
 
-            },  
-            function() {
-                console.log("api limit reached - start loading");
-                endcallback(objectName, updatedDocs);
+                        console.log("fetch and handle updates - SUCCESS")
+                success();
             }
-        );
-    });
-}
-
-function storeNewUpdates(data, callback) {
-
-    var body = [];
-
-    _.each(data.documents, function(doc) {
-
-        doc.utid = doc._id;
-        if (doc.hasOwnProperty('_id')) {
-            delete doc['_id'];
+        } else {
+            console.log("ERROR - fetch and handle updates")
+            err();
         }
-        var indx = {
-                index : 
-                { 
-                    _id: 2,
-                    _index: config.index,
-                    _type: 'tour_update'
-                }
-            };
-        body.push(indx);
-        body.push({ doc: { title: 'foo' } });
+
     });
-    console.log(body);
-    client.bulk([
-            // action description
-            { index:  { _index: 'myindex', _type: 'mytype', _id: 1 } },
-             // the document to index
-            { title: 'foo' }
-        ], function(err, data) {
-            console.log("store new updates");
-            callback();
+}
+
+function handleUpdates(documents, success, error) {
+    console.log(documents);
+    var docCount = documents.length;
+
+    function onEachSuccess(data) {
+        docCount--;
+        console.log("doc count ", docCount);
+        if (docCount === 0) {
+            success();
+        }
+    }
+
+    function onEachError(data) {
+        docCount--;
+        console.log("doc count ", docCount);
+        if (docCount === 0) {
+            success();
+        }        
+    }
+
+    _.each(documents, function(doc) {
+
+        var mappedDoc = mapData(doc);
+        if (mappedDoc) {
+
+            docsMapped++;
+
+            client.search({
+                index : config.index,
+                body: buildQuery(mappedDoc)
+            },
+            function(err, data) {
+                if (err) {
+                    console.log("error", err);
+                    error(err);
+                } else {
+                    handleIndexLookupResponse(mappedDoc, data, onEachSuccess, onEachError);
+                }             
+            });   
+        } else {
+            onEachError();
+        }
+
     });
+
 
 }
 
 
-function updateData(objectName, parameters) {
 
+function processUpdates(objectName, parameters) {
 
-    var parameters = parameters || { after : '2016-03-15T00:00:38', limit : 50, skip : 0 };
-    var counter = 0;
-    var updatedDocs = {};
+    var parameters = parameters || { after : '2016-03-01T00:00:38', limit : 50, skip : 0 };
 
-    fetchNewUpdates(objectName, parameters, counter, updatedDocs, updateChangedDocs);
+    function error() {
+        console.log("error updating");
+    }
+    function success() {
+        console.log("done");
+        finish();
+    }
+    fetchAndHandleUpdates(objectName, parameters, success, error)
 
 }
 
@@ -256,52 +244,51 @@ function getAndIndex(doc, type, completedCallback) {
 
 }
 
-function handleIndexLookupResponse(mappedDoc, response, completedCallback) {
+/* takes as arguments 
+    - obj - an object with an UTID property
+    - response - the response from Elasticsearch based on obj's UTID 
+    - completedCallback - callback which needs to be called
+*/
+function handleIndexLookupResponse(obj, response, success, error) {
 
-            if (mappedDoc && !limitExceeded) {
-                var hits = response.hits.hits;
+    var hits = response.hits.hits;
 
-                // The document does not exist - index it
-                if (hits.length === 0) {
-                    console.log("indexing new document - was not present in index", mappedDoc.utid);
-                    getAndIndex(mappedDoc, 'turer', completedCallback);
+    if (hits.length === 0) {
+        console.log("NEW DOC!!!", obj);
+        // The document does not exist - index it
+        getAndIndex(obj, 'turer', success);
 
-                // Duplicates in data store, delete all and take UT.no version
-                } else if (hits.length > 1) {
-                    console.log("MORE than one document with this ID, delete all and index")
-                    
-                    deleteDocuments(hits, function() {
-                        getAndIndex(mappedDoc, 'turer', completedCallback);
-                    });
+    } else if (hits.length > 1) {
+        
+        console.log("DUPLICATE!!!", obj);
+        console.log(hits[0]);
+        console.log("======!()/%#)(%!")
+        console.log(hits[1]);
+        // duplicates - delete all with UT ID and reindex
+        deleteDocuments(hits, function() {
+            getAndIndex(obj, 'turer', success);
+        });
 
-                // One exact match, check timestamp
-                } else {
+    } else if (hits.length === 1) {
+        // On exact hit - check time difference
+        if (hits[0]._source.endret == obj.endret) {
+            // Same document
+        console.log("EXACT HIT, NOT CHANGING",hits[0]._id, obj.endret);
+            success();
 
-
-                    if (hits[0]._source.endret == mappedDoc.endret) {
-                        completedCallback();
-                        // Same document
-                    } else {
-                        var localDoc = response.hits.hits[0];
-
-                        // if (Date.parse(localDoc._source.endret) < Date.parse(mappedDoc.endret)) {
-                            deleteDocument(localDoc._id, 
-                            function() {
-                                getAndIndex(mappedDoc, 'turer', completedCallback);
-                            },
-                            completedCallback);
-                        // }
-
-                        
-                    }
-                }
-            } else {
-                console.log("limited exceeded or doc incorrect");
-                completedCallback();
-            }
+        } else {
+            console.log("EXACT HIT, CHANGING", hits[0]._id);
+            // The document is newer or older - delete it and grab doc with UTID
+            deleteDocument(hits[0]._id, 
+            function() {
+                getAndIndex(obj, 'turer', success);
+            },
+            error);
             
-
-
+        }
+    } else {
+        console.log("BIG ERROR!!");
+    }
 }
 
 function deleteDocument(id, success, error) {
@@ -329,55 +316,6 @@ function deleteDocument(id, success, error) {
 
 }
 
-function storeChangedDocs(objectName, docs) {
-
-
-}
-
-function updateChangedDocs(objectName, docs) {
-    var count = 0;
-    _.each(docs, function(doc) {
-        count++;
-    });
-
-    console.log("potentially updating " + count + "\r\n");
-
-    var completed = 0;
-
-    function completedCallback(utid) {
-        completed++;
-        if (completed == count) {
-            finish();
-        }
-    }
-
-    _.each(docs, function(doc) {
-
-        var mappedDoc = mapData(doc);
-        if (mappedDoc) {
-            // The document is ok (i.e. it is a valid UT.no document)
-
-            docsMapped++;
-
-            client.search({
-                index : config.index,
-                body: buildQuery(mappedDoc)
-            },
-            function(err, data) {
-                if (err) {
-                    console.log("error", err);
-                    completedCallback();
-                } else {
-                    handleIndexLookupResponse(mappedDoc, data, completedCallback);
-                }             
-            });
-    	} else {
-    		completedCallback();
-    	}
-    });
-
-    // getAndUpsertDocuments(docs);
-}
 
 function mapData(doc) {
 
@@ -462,5 +400,5 @@ function indexDocument(doc, success, error) {
 
 
 
-parameters =  { after : '2016-03-01T19:10:38' , limit: 50 };
-updateData('turer', parameters);
+parameters =  { after : '2016-03-05T14:23:00' , limit: 50 , skip: 0};
+processUpdates('turer', parameters);
