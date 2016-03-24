@@ -61,9 +61,13 @@ var config = {
 
 // var k = _.template()
 
+var config = {
+    server: "192.168.80.127"
+}
+
 function search(value, success, error) {
     $.ajax({
-        url : 'http://localhost:9200/toptour/_search?q=' + value,
+        url : 'http://' + config.server + ':9200/toptour/_search?q=' + value,
         success: success,
         error: error
     });

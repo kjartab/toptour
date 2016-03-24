@@ -14,6 +14,7 @@ function addWmts() {
         }));
 }
 
+    viewer.scene.globe.depthTestAgainstTerrain = true;
 // addWmts();
 
 function addWms() {
@@ -38,52 +39,44 @@ viewer.terrainProvider = cesiumTerrainProvider;
 
 var data;
 
-function addGeoJson(geojson) {
-var positions = [
-    Cesium.Cartographic.fromDegrees(86.925145, 27.988257),
-    Cesium.Cartographic.fromDegrees(87.0, 28.0)
-];
-var promise = Cesium.sampleTerrain(cesiumTerrainProvider, 11, positions);
-Cesium.when(promise, function(updatedPositions) {
-    // positions[0].height and positions[1].height have been updated.
-    // updatedPositions is just a reference to positions.
-});
-    // addHeights(geojson,
-    //     function(geojson) {
-    //         data = viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojson, {
-    //             stroke: Cesium.Color.HOTPINK,
-    //             fill: Cesium.Color.PINK,
-    //             strokeWidth: 3,
-    //             markerSymbol: '?'
-    //         }));
-    //     }
-    // );
-}
-
 function addHeights(geojson, callback) {
-    console.log(geojson);
-    console.log(geojson.coordinates);
+
     var positions = _.map(geojson.coordinates, function(pos) {
         return Cesium.Cartographic.fromDegrees(pos[0], pos[1]);
     });
-    console.log(positions);
-    
-var positions = [
-    Cesium.Cartographic.fromDegrees(86.925145, 27.988257),
-    Cesium.Cartographic.fromDegrees(87.0, 28.0)
-];
 
     var promise = Cesium.sampleTerrain(cesiumTerrainProvider, 11, positions);
     Cesium.when(promise, function(updatedPositions) {
-
-        geojson.coordinates = _.map(updatedPositions, function(pos) {
-            return [pos.x, pos.y, pos.height];
-        });
+            geojson.coordinates = _.map(updatedPositions, function(pos) {
+                return [ Cesium.Math.toDegrees(pos.longitude), Cesium.Math.toDegrees(pos.latitude), pos.height+20];
+            });
 
         callback(geojson);
     });
 
 }
+
+function addGeoJson(geojson) {
+    
+    addHeights(geojson, function(geojson) {
+            data = viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojson, {
+                stroke: Cesium.Color.HOTPINK,
+                fill: Cesium.Color.PINK,
+                strokeWidth: 3,
+                markerSymbol: '?'
+            }));
+        });
+}
+
+
+
+// var promise = Cesium.sampleTerrain(cesiumTerrainProvider, 11, positions);
+// Cesium.when(promise, function(updatedPositions) {
+//     // positions[0].height and positions[1].height have been updated.
+//     // updatedPositions is just a reference to positions.
+//     console.log(updatedPositions);
+// });
+
 
 function removeWms(id) {
     // viewer.getLayers(id).remove();
