@@ -18,12 +18,12 @@ function addWmts() {
 
 function addWms() {
 
-    var wmsLayer = new Cesium.ImageryLayer(new Cesium.WebMapServiceImageryProvider({
-                parameters : {TRANSPARENT: true, format:'png'},
-                url: 'http://gridwms.nve.no/wms_server/wms_server.aspx',
-                layers: 'sdfsw'
-            }));
-    viewer.scene.imageryLayers.add(wmsLayer);
+    // var wmsLayer = new Cesium.ImageryLayer(new Cesium.WebMapServiceImageryProvider({
+    //             parameters : {TRANSPARENT: true, format:'png'},
+    //             url: 'http://gridwms.nve.no/wms_server/wms_server.aspx',
+    //             layers: 'sdfsw'
+    //         }));
+    // viewer.scene.imageryLay ers.add(wmsLayer);
 }
 // addWms();
 
@@ -39,22 +39,50 @@ viewer.terrainProvider = cesiumTerrainProvider;
 var data;
 
 function addGeoJson(geojson) {
+var positions = [
+    Cesium.Cartographic.fromDegrees(86.925145, 27.988257),
+    Cesium.Cartographic.fromDegrees(87.0, 28.0)
+];
+var promise = Cesium.sampleTerrain(cesiumTerrainProvider, 11, positions);
+Cesium.when(promise, function(updatedPositions) {
+    // positions[0].height and positions[1].height have been updated.
+    // updatedPositions is just a reference to positions.
+});
+    // addHeights(geojson,
+    //     function(geojson) {
+    //         data = viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojson, {
+    //             stroke: Cesium.Color.HOTPINK,
+    //             fill: Cesium.Color.PINK,
+    //             strokeWidth: 3,
+    //             markerSymbol: '?'
+    //         }));
+    //     }
+    // );
+}
 
-    data = viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geojson, {
-        stroke: Cesium.Color.HOTPINK,
-        fill: Cesium.Color.PINK,
-        strokeWidth: 3,
-        markerSymbol: '?'
-    }));
-} 
-
-function dd(positions) {
+function addHeights(geojson, callback) {
+    console.log(geojson);
+    console.log(geojson.coordinates);
+    var positions = _.map(geojson.coordinates, function(pos) {
+        return Cesium.Cartographic.fromDegrees(pos[0], pos[1]);
+    });
+    console.log(positions);
+    
+var positions = [
+    Cesium.Cartographic.fromDegrees(86.925145, 27.988257),
+    Cesium.Cartographic.fromDegrees(87.0, 28.0)
+];
 
     var promise = Cesium.sampleTerrain(cesiumTerrainProvider, 11, positions);
     Cesium.when(promise, function(updatedPositions) {
-        // positions[0].height and positions[1].height have been updated.
-        // updatedPositions is just a reference to positions.
+
+        geojson.coordinates = _.map(updatedPositions, function(pos) {
+            return [pos.x, pos.y, pos.height];
+        });
+
+        callback(geojson);
     });
+
 }
 
 function removeWms(id) {
