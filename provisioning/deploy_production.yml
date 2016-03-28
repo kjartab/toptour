@@ -1,14 +1,16 @@
 ---
 - name: toptour
-  hosts: e6420
+  hosts: toptour_servers
   sudo: yes
-  remote_user: kjartan
+  remote_user: ansible
   vars:
     project_name: toptour
+    search_server: http://www.search.kartan.no:9200
   roles:
-    - elasticsearch 
-    - node
-    - prod_deploy
+    # - elasticsearch 
+    # - node
+    - deploy_app
+
 # - name: Install node
 #   hosts: localvagrant
 #   remote_user: ansible

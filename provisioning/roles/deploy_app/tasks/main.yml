@@ -1,0 +1,15 @@
+---
+- git:
+    accept_hostkey: True
+    dest: /home/{{ansible_user}}/projects/{{project_name}}
+    force: yes
+    update: yes
+    repo: https://github.com/kjartab/{{project_name}}
+- name: create and copy config file for nginx app
+  template: src=nginx.j2 dest=/etc/nginx/conf.d/apps/{{project_name}}
+  sudo: yes
+
+- name: npm get dependencies
+  npm:  path=/home/{{ansible_user}}/projects/{{project_name}}
+- name: create config file for app
+  template: src=app_config.j2 dest=/etc/nginx/conf.d/apps/config.js
