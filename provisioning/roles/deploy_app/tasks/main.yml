@@ -12,4 +12,4 @@
 - name: npm get dependencies
   npm:  path=/home/{{ansible_user}}/projects/{{project_name}}
 - name: create config file for app
-  template: src=app_config.j2 dest=/etc/nginx/conf.d/apps/config.js
+  template: src=app_config.j2 dest=/home/{{ansible_user}}/projects/{{project_name}}/apps/html/config.js
