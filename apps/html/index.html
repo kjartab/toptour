@@ -72,19 +72,25 @@ function search(value, success, error) {
 
 $searchResults = $('#search-results');
 
-$('#search-id').on('keyup', function(e) {
+function handleResponse(data) {
 
-    search(e.currentTarget.value,
-        function(data) {    
             $searchResults.empty();
             _.each(data.hits.hits, 
                 function(hit) {
                     var $hit = $("<p>" + hit._source.navn + '</p>').on('click', function(e) {
-                            addGeoJson(hit._source.geojson);
+                        
+                            // addGeoJson(hit._source.geojson);
                         });
                     $searchResults.append($hit);
                     // addGeoJson(hit._source.geojson);
                 });
+}
+
+$('#search-id').on('keyup', function(e) {
+
+    search(e.currentTarget.value,
+        function(data) {    
+            handleResponse(data);
         },
         function(error) {
             console.log(error);
@@ -103,7 +109,7 @@ $('#search-id').on('keyup', function(e) {
 // })
 
 </script>
-<script src="app.js"></script>
+<!-- <script src="app.js"></script> -->
 
 </body>
 </html>
