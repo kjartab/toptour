@@ -1,1 +1,0 @@
-module.exports = require("npm:cesium@1.19.0/index");
