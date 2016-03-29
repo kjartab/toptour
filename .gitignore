@@ -1,4 +1,5 @@
 node_modules/
+jspm_modules/
 **/config.js
 .vagrant/
 backup/
