@@ -5,7 +5,7 @@
   remote_user: ansible
   vars:
     project_name: toptour
-    search_server: http://www.search.kartan.no:9200
+    search_server: www.search.kartan.no
   roles:
     # - elasticsearch 
     # - node
