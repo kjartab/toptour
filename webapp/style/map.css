@@ -1,0 +1,21 @@
+.fullscreenmap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #ddd;
+}
+
+
+.list {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    bottom: 20px;
+    background: #fff;
+    width: 400px;
+    z-index: 2000;
+    border-radius: 4px;
+    overflow-y: scroll;
+}
