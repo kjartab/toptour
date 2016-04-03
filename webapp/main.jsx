@@ -11,6 +11,4 @@ breweries = _.filter(breweries.features, function (brewery) {
 
 require('bootstrap_css');
 
-ReactDOM.render(<LeafletMap breweries={{features: breweries}}/>, document.getElementById('wrapper'));
-
-
+ReactDOM.render(<LeafletMap />, document.getElementById('wrapper'));
