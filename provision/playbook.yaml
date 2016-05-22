@@ -1,0 +1,21 @@
+---
+- name: toptour
+  hosts: all
+  become: yes
+  vars:
+    elasticsearch_backup_location: "/home/vagrant/backup"
+    elasticsearch_backup_name: "toptour_backup"
+    # elasticsearch_backup_settings: " \"type\": fs,\"settings\": {\"compress\": true,\"location\": \"/home/vagrant/backup\"  }   }"   
+    deploy_user: vagrant
+    restore_indices: true
+    elasticsearch_server: "http://10.0.0.116:9200"
+    nodejs_version: "4"
+    # elasticsearch_backup_location: "/home/{{deploy_user}}/projects/toptour/backup"
+    search_server: www.search.kartan.no  
+  roles:
+  # - azavea.postgresql 
+  # - azavea.postgis  
+  # - geerlingguy.java
+  # - geerlingguy.elasticsearch
+  # - node
+  - elasticsearch

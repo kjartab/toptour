@@ -1,5 +1,0 @@
-[localvagrant]
-127.0.0.1 ansible_connection=ssh ansible_ssh_user=vagrant ansible_ssh_port=2222
-
-[e6420]
-10.0.0.116 ansible_connection=ssh ansible_ssh_user=kjartan ansible_ssh_port=22

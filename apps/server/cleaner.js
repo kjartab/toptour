@@ -6,8 +6,6 @@ var client = new elasticsearch.Client({
 });
 
 
-
-
 var env = 'dev';
 // var env = 'prod';
 var config = config || {
