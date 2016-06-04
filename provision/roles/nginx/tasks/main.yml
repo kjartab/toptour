@@ -1,0 +1,13 @@
+---
+- name: install nginx
+  apt: name=nginx update_cache=yes force=yes
+
+# - name: Ensure apps folder exists
+#   file: path=/etc/nginx/conf.d/apps state=directory
+
+- name: server config
+  template: src=searchkartan.j2 dest=/etc/nginx/sites-enabled/searchkartan
+
+
+- name: restart nginx
+  service: name=nginx state=restarted

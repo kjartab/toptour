@@ -1,0 +1,24 @@
+---
+- name: Get from GIT
+  git:
+    accept_hostkey: True
+    dest: "{{deploy_directory}}"
+    force: yes
+    update: yes
+    repo: https://github.com/kjartab/{{project_name}}
+  when: from_git
+  
+- name: Copy apps from local 
+  copy: src=../apps dest={{deploy_directory}}
+  when: from_git == False 
+
+- name: Copy package.json from local 
+  copy: src=../package.json dest={{deploy_directory}}/package.json
+  when: from_git == False 
+
+- name: npm get dependencies
+  npm:  path="{{deploy_directory}}"
+
+# - name: create config file for app
+#   template: src=app_config.j2 dest=/home/{{ansible_user}}/projects/{{project_name}}/apps/html/config.js
+

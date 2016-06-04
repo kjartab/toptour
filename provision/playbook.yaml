@@ -1,21 +1,35 @@
 ---
 - name: toptour
-  hosts: all
+  hosts: localserver
   become: yes
   vars:
-    elasticsearch_backup_location: "/home/vagrant/backup"
+    project_name: toptour
+    deploy_user: "{{ ansible_user }}"
+    deploy_directory: /home/{{ ansible_user }}/{{project_name}}
+
+    elasticsearch_backup_file: "../data/backup.tar.gz"
+    elasticsearch_backup_location: "{{deploy_directory}}/data/backup"
+
     elasticsearch_backup_name: "toptour_backup"
-    # elasticsearch_backup_settings: " \"type\": fs,\"settings\": {\"compress\": true,\"location\": \"/home/vagrant/backup\"  }   }"   
-    deploy_user: vagrant
+    elasticsearch_snapshot_name: "snapshot_2"
+
+    elasticsearch_host: "{{ansible_host}}"
+    elasticsearch_port: 9200
+    elasticsearch_server: "http://{{elasticsearch_host}}:{{elasticsearch_port}}"
+
+    search_server: www.search.kartan.no
+    server_name_line: "server_name {{search_server}}"
+        
     restore_indices: true
-    elasticsearch_server: "http://10.0.0.116:9200"
-    nodejs_version: "4"
-    # elasticsearch_backup_location: "/home/{{deploy_user}}/projects/toptour/backup"
-    search_server: www.search.kartan.no  
+    from_git: false
+    
+    nodejs_version: "4.x"
+  tasks:
+    - name: install prerequisites
+      apt: pkg=git state=present
   roles:
-  # - azavea.postgresql 
-  # - azavea.postgis  
-  # - geerlingguy.java
-  # - geerlingguy.elasticsearch
-  # - node
-  - elasticsearch
+    - geerlingguy.nodejs
+    - geerlingguy.java
+    - toptour_elasticsearch
+    # - toptour_app
+    - nginx

@@ -1,0 +1,63 @@
+---
+
+  - name: Add Elasticsearch apt key.
+    apt_key:
+      url: https://packages.elastic.co/GPG-KEY-elasticsearch
+      state: present
+
+  - name: Add Elasticsearch repository.
+    apt_repository:
+      repo: 'deb http://packages.elastic.co/elasticsearch/2.x/debian stable main'
+      state: present
+      update_cache: yes
+
+  - name: Install Elasticsearch.
+    apt: pkg=elasticsearch state=present
+
+  - name: Ensure elasticsearch is running
+    service: name=elasticsearch state=started
+
+  - name: Ensure bakcup folder exists
+    file: path={{elasticsearch_backup_location}} state=directory mode=0777
+
+  - name: Copy backup files
+    unarchive: src={{elasticsearch_backup_file}} dest={{deploy_directory}}/data mode=0777
+
+  - name: Elasticsearch config file
+    template: src=elasticsearch_config.j2 dest='/etc/elasticsearch/elasticsearch.yml'
+
+  - name: Ensure elasticsearch is running
+    service: name=elasticsearch state=restarted
+    when: restore_indices
+
+
+  - name: Ensure elasticsearch is running
+    service: name=elasticsearch state=restarted
+    when: restore_indices
+
+  - name: Wait for Elasticsearch to start up again
+    wait_for: host={{elasticsearch_host}} port={{elasticsearch_port}}
+
+  - name: Delete indices if restoring
+    uri: 
+      method: DELETE
+      url: "{{elasticsearch_server}}/*"
+      status_code: 200
+    when: restore_indices
+
+  - name: Add backup 
+    uri: 
+      method: POST
+      url: "{{elasticsearch_server}}/_snapshot/{{elasticsearch_backup_name}}"
+      body: "{{ lookup('template','backup_body.j2') }}"
+      status_code: 200
+      body_format: json
+    when: restore_indices
+
+  - name: Restore indices
+    uri: 
+      method: POST
+      url: "{{elasticsearch_server}}/_snapshot/{{elasticsearch_backup_name}}/{{elasticsearch_snapshot_name}}/_restore"
+      status_code: 200
+    when: restore_indices
+    
