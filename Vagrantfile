@@ -13,10 +13,11 @@ Vagrant.configure(2) do |config|
     config.vm.network :forwarded_port, host: 3004, guest: 9200 # ElasticSearch
 
     config.vm.provision "ansible" do |ansible|
+        ansible.groups = {
+            "toptour" => ["default"]
+        }
         ansible.playbook = "provision/playbook.yaml"
-        ansible.inventory_path = "provision/test_inventory"
-        ansible.verbose = "vvvv"
-        ansible.limit = "vagrant"
+        ansible.verbose = "vv"
     end
 
 end

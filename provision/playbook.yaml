@@ -1,6 +1,6 @@
 ---
 - name: toptour
-  hosts: localserver
+  hosts: toptour
   become: yes
   vars:
     project_name: toptour
