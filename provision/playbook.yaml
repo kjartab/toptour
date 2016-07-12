@@ -1,7 +1,6 @@
 ---
 - name: toptour
   hosts: toptour
-  become: yes
   vars:
     project_name: toptour
     deploy_user: "{{ ansible_user }}"
@@ -24,12 +23,19 @@
     from_git: false
     
     nodejs_version: "4.x"
+
   tasks:
-    - name: install prerequisites
+    - name: install git
       apt: pkg=git state=present
   roles:
-    - geerlingguy.nodejs
+    - role: geerlingguy.nodejs
+      tags: 
+        - javascript
+        - nodejs
     - geerlingguy.java
     - toptour_elasticsearch
-    # - toptour_app
+    - role: toptour_app 
+      tags: 
+        - javascript
+        - app
     - nginx

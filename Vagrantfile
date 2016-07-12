@@ -1,7 +1,6 @@
 Vagrant.configure(2) do |config|
 
-
-    config.vm.box = "szops/ubuntu-xenial-amd64"
+    config.vm.box = "ubuntu/trusty64" 
     config.ssh.insert_key = true
 
     config.vm.provider "virtualbox" do |v|
@@ -16,8 +15,11 @@ Vagrant.configure(2) do |config|
         ansible.groups = {
             "toptour" => ["default"]
         }
-        ansible.playbook = "provision/playbook.yaml"
+        #ansible.playbook = "provision/playbook.yaml"
         ansible.verbose = "vv"
+
+        ansible.inventory_path = "provision/test_inventory"
+        
     end
 
 end
