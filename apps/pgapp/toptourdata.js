@@ -7,13 +7,8 @@ var app = function() {
     function handleUpdates(updates, callback) {
 
         _.each(updates, function(update) {
-
             
-
         });
-
-
-
 
     }
 

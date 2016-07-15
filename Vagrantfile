@@ -12,7 +12,6 @@ Vagrant.configure(2) do |config|
     config.vm.network :forwarded_port, host: 3004, guest: 9200 # ElasticSearch
 
     config.vm.provision "ansible" do |ansible|
-<<<<<<< Updated upstream
         ansible.groups = {
             "toptour" => ["default"]
         }
@@ -21,11 +20,6 @@ Vagrant.configure(2) do |config|
 
         ansible.inventory_path = "provision/test_inventory"
         
-=======
-        ansible.playbook = "provision/playbook.yaml"
-       ansible.inventory_path = "provision/test_inventory"
-        ansible.verbose = "vvvv"
->>>>>>> Stashed changes
     end
 
 end
